@@ -3,7 +3,7 @@ import json
 import configparser
 
 config = configparser.ConfigParser()
-config.read('/sapiws/.conf')
+config.read('/sapiws/dama.conf')
 
 CLIENT_ID = config['API_SETTINGS']['API_ID']
 CLIENT_SECRET = config['API_SETTINGS']['API_SECRET']
