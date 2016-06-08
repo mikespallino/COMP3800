@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Dama</string>
+
+    <!--Static TextViews-->
+    <string name="title">DAMA</string>
+    <string name="useSpotify">Use your Spotify!</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+
+    <!--Static Random TextViews-->
+    <string name="or">or</string>
+
+    <!--Dynamic TextViews-->
+
+
+    <!--Buttons-->
+    <string name="button_connect">Connect</string>
+    <string name="button_signup">Sign Up</string>
+
+    <!--EditText-->
+
+
+    <!--NavDrawer-->
+
+
+    <!--Action Menu-->
+
+
+</resources>
