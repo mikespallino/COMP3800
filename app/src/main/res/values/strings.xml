@@ -16,6 +16,8 @@
     <!--Buttons-->
     <string name="button_connect">Connect</string>
     <string name="button_signup">Sign Up</string>
+    <string name="button_host">Host</string>
+    <string name="button_join">Join</string>
 
     <!--EditText-->
 
