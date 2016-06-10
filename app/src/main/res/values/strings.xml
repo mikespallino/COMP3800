@@ -26,7 +26,8 @@
     <!--NavDrawer-->
 
 
-    <!--Action Menu-->
-
+    <!--Tool Bar-->
+    <string name="action_setting">Settings</string>
+    <string name="action_about">About Us</string>
 
 </resources>
