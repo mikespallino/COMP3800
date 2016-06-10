@@ -13,7 +13,11 @@
         <activity
             android:name=".activity.SplashScreenActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".activity.LoginScreenActivity"
@@ -25,14 +29,8 @@
             android:name=".activity.JoinHostActivity"
             android:theme="@style/Theme.AppCompat" />
         <activity
-            android:name=".activity.HubActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:name=".activity.HostPlaylistPickerActivity"
+            android:theme="@style/Theme.AppCompat"/>
     </application>
 
 </manifest>
