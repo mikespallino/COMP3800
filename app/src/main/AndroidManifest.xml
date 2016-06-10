@@ -30,7 +30,10 @@
             android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".activity.HostPlaylistPickerActivity"
-            android:theme="@style/Theme.AppCompat"/>
+            android:theme="@style/Theme.AppCompat" />
+        <activity
+            android:name=".activity.JoinEventPickerActivity"
+            android:theme="@style/Theme.AppCompat"></activity>
     </application>
 
 </manifest>

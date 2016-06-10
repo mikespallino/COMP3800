@@ -7,6 +7,7 @@
     <string name="login">Login</string>
     <string name="password">Password</string>
     <string name="pickPlaylist">Pick your playlist!</string>
+    <string name="findEvent">Find your event!</string>
 
     <!--Static Random TextViews-->
     <string name="or">or</string>

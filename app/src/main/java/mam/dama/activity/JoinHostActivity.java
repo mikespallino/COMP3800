@@ -8,7 +8,7 @@ import android.widget.Button;
 
 import mam.dama.R;
 
-public class JoinHostActivity extends AppCompatActivity {
+public class  JoinHostActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +21,15 @@ public class JoinHostActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(JoinHostActivity.this, HostPlaylistPickerActivity.class);
+                startActivity(intent);
+            }
+        });
+        // Move to the Join Event Picker Activity when the join button is clicked
+        Button joinButton = (Button) findViewById(R.id.button_join);
+        joinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(JoinHostActivity.this, JoinEventPickerActivity.class);
                 startActivity(intent);
             }
         });
