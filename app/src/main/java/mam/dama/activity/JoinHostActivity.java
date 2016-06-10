@@ -24,5 +24,14 @@ public class  JoinHostActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        // Move to the Join Event Picker Activity when the join button is clicked
+        Button joinButton = (Button) findViewById(R.id.button_join);
+        joinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(JoinHostActivity.this, JoinEventPickerActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }
