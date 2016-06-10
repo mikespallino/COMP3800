@@ -5,7 +5,7 @@ import android.os.Bundle;
 
 import mam.dama.R;
 
-public class JoinHostActivity extends AppCompatActivity {
+public class  JoinHostActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
