@@ -1,11 +1,14 @@
 package mam.dama.activity;
 
+import android.app.FragmentManager;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import mam.dama.Fragment.PlaylistFragment;
 import mam.dama.R;
 
 public class HubActivity extends AppCompatActivity {
@@ -17,6 +20,12 @@ public class HubActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.app_toolbar);
         setSupportActionBar(toolbar);
 
+
+        if(savedInstanceState==null){
+            FragmentManager fm = getFragmentManager();
+            android.app.Fragment fragment = new PlaylistFragment();
+            fm.beginTransaction().replace(R.id.content_hub, fragment).commit();
+        }
 
     }
     @Override
@@ -35,6 +44,14 @@ public class HubActivity extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() > 0) {
+            getFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
         }
     }
 }

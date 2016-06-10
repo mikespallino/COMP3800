@@ -7,18 +7,22 @@
     <string name="login">Login</string>
     <string name="password">Password</string>
     <string name="pickPlaylist">Pick your playlist!</string>
+    <string name="playing">Currently Playing</string>
 
     <!--Static Random TextViews-->
     <string name="or">or</string>
 
     <!--Dynamic TextViews-->
-
+    <string name="textView_metadata">METADATA HERE</string>
 
     <!--Buttons-->
     <string name="button_connect">Connect</string>
     <string name="button_signup">Sign Up</string>
     <string name="button_host">Host</string>
     <string name="button_join">Join</string>
+
+    <string name="button_viewRequest">View Requests</string>
+    <string name="button_addRequest">Add Requests</string>
 
     <!--EditText-->
 
