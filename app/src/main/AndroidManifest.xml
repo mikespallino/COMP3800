@@ -28,6 +28,9 @@
         <activity
             android:name=".activity.JoinHostActivity"
             android:theme="@style/Theme.AppCompat" />
+        <activity
+            android:name=".activity.HostPlaylistPickerActivity"
+            android:theme="@style/Theme.AppCompat"/>
     </application>
 
 </manifest>

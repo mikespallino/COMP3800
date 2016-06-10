@@ -10,7 +10,7 @@
     tools:context=".activity.LoginScreenActivity">
 
     <TextView
-        android:id="@+id/useSpotify"
+        android:id="@+id/pickPlaylist"
         android:text="@string/useSpotify"
         android:textSize="30sp"
         android:layout_centerHorizontal="true"
@@ -23,7 +23,7 @@
         android:id="@+id/button_connect"
         android:text="@string/button_connect"
         android:textSize="30sp"
-        android:layout_below="@+id/useSpotify"
+        android:layout_below="@+id/pickPlaylist"
         android:layout_marginTop="20dp"
         android:layout_centerHorizontal="true"
         android:layout_width="180dp"
