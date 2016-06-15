@@ -25,7 +25,7 @@ def logged_in():
     query_string = bottle.request.query_string
     query_dict = urllib.parse.parse_qs(query_string)
     query_dict['code'] = query_dict['code'][0]
-    return query_dict
+    return json.dumps(query_dict)
 
 
 if __name__ == "__main__":
