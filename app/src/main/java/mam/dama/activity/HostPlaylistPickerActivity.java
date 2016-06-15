@@ -1,6 +1,7 @@
 package mam.dama.activity;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -106,6 +107,8 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
                         eventNamePassword = eventPassword.getText().toString();
                         Log.v("DAMA [EVENT NAME]:", eventNameText);
                         Log.v("DAMA [EVENT PASSWORD]:", eventNamePassword);
+                        Intent hubIntent = new Intent(HostPlaylistPickerActivity.this, HubActivity.class);
+                        startActivity(hubIntent);
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
