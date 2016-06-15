@@ -8,6 +8,7 @@
     <string name="password">Password</string>
     <string name="pickPlaylist">Pick your playlist!</string>
     <string name="playing">Currently Playing</string>
+    <string name="findEvent">Find your event!</string>
 
     <!--Static Random TextViews-->
     <string name="or">or</string>
