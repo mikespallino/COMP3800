@@ -8,8 +8,12 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 import mam.dama.R;
 
@@ -46,6 +50,14 @@ public class PlaylistFragment extends Fragment {
         } else {
             nameText = "Event: UNKOWN";
         }
+
+        ArrayList<String> playlistSongs = prevBundle.getStringArrayList("playlist_songs");
+        ListView playlistView = (ListView) rootView.findViewById(R.id.listView_currentPlaylist);
+        final ArrayAdapter<String> adapter;
+        adapter = new ArrayAdapter<>(getActivity().getApplicationContext(),
+                android.R.layout.simple_list_item_1, playlistSongs);
+
+        playlistView.setAdapter(adapter);
 
         eventName.setText(nameText);
         addRequest.setOnClickListener(new View.OnClickListener() {
