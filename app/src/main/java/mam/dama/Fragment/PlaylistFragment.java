@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import mam.dama.R;
 
@@ -33,9 +34,20 @@ public class PlaylistFragment extends Fragment {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_playlist, container, false);
 
+        TextView eventName = (TextView)(rootView.findViewById(R.id.event_name));
         addRequest = (Button)(rootView.findViewById(R.id.button_addRequest));
         viewRequest = (Button)(rootView.findViewById(R.id.button_viewRequest));
 
+
+        Bundle prevBundle = getArguments();
+        String nameText = prevBundle.getString("event_name");
+        if (nameText != null) {
+            nameText = "Event: " + nameText;
+        } else {
+            nameText = "Event: UNKOWN";
+        }
+
+        eventName.setText(nameText);
         addRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

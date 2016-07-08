@@ -20,10 +20,12 @@ public class HubActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.app_toolbar);
         setSupportActionBar(toolbar);
 
+        Bundle prevBundle = getIntent().getExtras();
 
         if(savedInstanceState==null){
             FragmentManager fm = getFragmentManager();
             android.app.Fragment fragment = new PlaylistFragment();
+            fragment.setArguments(prevBundle);
             fm.beginTransaction().replace(R.id.content_hub, fragment).commit();
         }
 
