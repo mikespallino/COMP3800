@@ -1,5 +1,6 @@
 package mam.dama.activity;
 
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -18,7 +19,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import mam.dama.R;
 
@@ -32,21 +36,33 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_host_playlist_picker);
 
-        String[] getAll = {"*"};
-        Uri tempPlaylistURI = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
-        Cursor playlistCursor = this.getContentResolver().query(tempPlaylistURI, getAll, null, null, null);
+        // The following is to query the device for playlists
+        final String[] getAll = {"*"};
+        final Uri tempPlaylistURI = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
+        final ContentResolver resolver = this.getContentResolver();
+        final String id = MediaStore.Audio.Playlists._ID;
+        final String name = MediaStore.Audio.Playlists.NAME;
+        final Cursor playlistCursor = resolver.query(tempPlaylistURI, getAll, null, null, null);
 
-        final ArrayList<String> playlistItems = new ArrayList<>();
+        // This constructs a map of playlist name -> playlist id
+        // we show the name to the user, but we use the id internally
+        // to get the playlist tracks
+        final HashMap<String, Long> playlistIDMap = new HashMap<>();
 
         if(playlistCursor.getCount() == 0) {
-            playlistItems.add("No playlists found!");
+            playlistIDMap.put("No playlists found!", -1l);
         } else {
             for (int i = 0; i < playlistCursor.getCount(); i++) {
                 playlistCursor.moveToPosition(i);
-                playlistItems.add(playlistCursor.getString(playlistCursor.getColumnIndex("name")));
+                String nameText = playlistCursor.getString(playlistCursor.getColumnIndex(name));
+                long idLong = playlistCursor.getLong(playlistCursor.getColumnIndex(id));
+                playlistIDMap.put(nameText, idLong);
             }
         }
+        playlistCursor.close();
 
+        // Here we create the lists to populate the list of playlists displayed to the user
+        final ArrayList<String> playlistItems = new ArrayList<>(playlistIDMap.keySet());
         final ArrayList<String> playlistItemsCopy = new ArrayList<>(playlistItems);
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1,
@@ -60,6 +76,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 // Fake it till we make it!
+                // Here we are *attempting* to to rudimentary searches through the playlist for text
                 for (int i = 0; i < playlistItems.size(); i++) {
                     if (!playlistItems.get(i).toLowerCase().contains(query.toLowerCase())) {
                         playlistItems.remove(i);
@@ -71,6 +88,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                // If the search text has changed, we need to change our data back to the original list
                 for (int i = 0; i < playlistItemsCopy.size(); i++) {
                     if (!playlistItems.contains(playlistItemsCopy.get(i))) {
                         playlistItems.add(playlistItemsCopy.get(i));
@@ -86,8 +104,11 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
         playlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String selectedPlaylist = (String) playlistView.getItemAtPosition(position);
-                Log.v("DAMA", selectedPlaylist);
+                final String selectedPlaylist = (String) playlistView.getItemAtPosition(position);
+                final long selectedPlaylistId = playlistIDMap.get(selectedPlaylist);
+                final ArrayList<String> playlistSongs = new ArrayList<>();
+
+                // The following sets up the Alert Dialog to create a new event.
                 AlertDialog.Builder builder = new AlertDialog.Builder(HostPlaylistPickerActivity.this);
                 builder.setTitle("Name your event");
 
@@ -107,9 +128,25 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
 
                 builder.setView(dialogLayout);
 
+                // The following is to define what happens when the user clicks either button on the Alert.
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        // Get all of the tracks for the selected playlist
+                        final Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", selectedPlaylistId);
+                        Cursor tracks = resolver.query(uri, new String[] {"*"}, null, null, null);
+
+                        if(tracks != null) {
+                            for (int i = 0; i < tracks.getCount(); i++) {
+                                tracks.moveToPosition(i);
+                                int dataIndex = tracks.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME);
+                                String trackName = tracks.getString(dataIndex);
+                                playlistSongs.add(trackName);
+                            }
+                            tracks.close();
+                        }
+
+                        // Log important stuff and switch to the hub activity
                         eventNameText = eventName.getText().toString();
                         eventNamePassword = eventPassword.getText().toString();
                         Log.v("DAMA [EVENT NAME]:", eventNameText);
@@ -118,6 +155,8 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
                         Bundle hubBundle = new Bundle();
                         hubBundle.putString("event_name", eventNameText);
                         hubBundle.putString("event_password", eventNamePassword);
+                        hubBundle.putString("playlist_name", selectedPlaylist);
+                        hubBundle.putStringArrayList("playlist_songs", playlistSongs);
                         hubIntent.putExtras(hubBundle);
                         startActivity(hubIntent);
                     }
@@ -134,43 +173,4 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
         });
     }
 
-    private int levenshteinDistance (CharSequence lhs, CharSequence rhs) {
-        int len0 = lhs.length() + 1;
-        int len1 = rhs.length() + 1;
-
-        // the array of distances
-        int[] cost = new int[len0];
-        int[] newcost = new int[len0];
-
-        // initial cost of skipping prefix in String s0
-        for (int i = 0; i < len0; i++) cost[i] = i;
-
-        // dynamically computing the array of distances
-
-        // transformation cost for each letter in s1
-        for (int j = 1; j < len1; j++) {
-            // initial cost of skipping prefix in String s1
-            newcost[0] = j;
-
-            // transformation cost for each letter in s0
-            for(int i = 1; i < len0; i++) {
-                // matching current letters in both strings
-                int match = (lhs.charAt(i - 1) == rhs.charAt(j - 1)) ? 0 : 1;
-
-                // computing cost for each transformation
-                int cost_replace = cost[i - 1] + match;
-                int cost_insert  = cost[i] + 1;
-                int cost_delete  = newcost[i - 1] + 1;
-
-                // keep minimum cost
-                newcost[i] = Math.min(Math.min(cost_insert, cost_delete), cost_replace);
-            }
-
-            // swap cost/newcost arrays
-            int[] swap = cost; cost = newcost; newcost = swap;
-        }
-
-        // the distance is the cost for transforming all letters in both strings
-        return cost[len0 - 1];
-    }
 }
