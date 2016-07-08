@@ -2,6 +2,9 @@ package mam.dama.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,17 +32,21 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_host_playlist_picker);
 
-        // Add the playlist items
-        // TODO: This is a placeholder for now. Update this later when we bring in the API.
+        String[] getAll = {"*"};
+        Uri tempPlaylistURI = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
+        Cursor playlistCursor = this.getContentResolver().query(tempPlaylistURI, getAll, null, null, null);
+
         final ArrayList<String> playlistItems = new ArrayList<>();
-//        for (int i = 0; i < 15; i ++) {
-//            playlistItems.add("Playlist #" + i);
-//        }
-        playlistItems.add("Thing");
-        playlistItems.add("andy");
-        playlistItems.add("Rock Songs");
-        playlistItems.add("90's Hits");
-        playlistItems.add("Folk Music");
+
+        if(playlistCursor.getCount() == 0) {
+            playlistItems.add("No playlists found!");
+        } else {
+            for (int i = 0; i < playlistCursor.getCount(); i++) {
+                playlistCursor.moveToPosition(i);
+                playlistItems.add(playlistCursor.getString(playlistCursor.getColumnIndex("name")));
+            }
+        }
+
         final ArrayList<String> playlistItemsCopy = new ArrayList<>(playlistItems);
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1,
@@ -108,6 +115,10 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
                         Log.v("DAMA [EVENT NAME]:", eventNameText);
                         Log.v("DAMA [EVENT PASSWORD]:", eventNamePassword);
                         Intent hubIntent = new Intent(HostPlaylistPickerActivity.this, HubActivity.class);
+                        Bundle hubBundle = new Bundle();
+                        hubBundle.putString("event_name", eventNameText);
+                        hubBundle.putString("event_password", eventNamePassword);
+                        hubIntent.putExtras(hubBundle);
                         startActivity(hubIntent);
                     }
                 });
