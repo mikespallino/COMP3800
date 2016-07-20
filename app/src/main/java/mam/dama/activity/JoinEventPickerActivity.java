@@ -74,6 +74,11 @@ public class JoinEventPickerActivity extends AppCompatActivity {
                         Log.v("DAMA [EVENT NAME]:", eventNameText);
                         Log.v("DAMA [EVENT PASSWORD]:", eventNamePassword);
                         Intent hubIntent = new Intent(JoinEventPickerActivity.this, HubActivity.class);
+                        Bundle hubBundle = new Bundle();
+                        hubBundle.putString("event_name", eventNameText);
+                        //TODO: Fill this in with the songs from the event.
+                        hubBundle.putStringArrayList("playlist_songs", new ArrayList<String>());
+                        hubIntent.putExtras(hubBundle);
                         startActivity(hubIntent);
                     }
                 });

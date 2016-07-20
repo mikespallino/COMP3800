@@ -14,12 +14,10 @@ public class SplashScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
-        //Do database, web, or other stuff
-
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent login = new Intent(SplashScreenActivity.this,LoginScreenActivity.class);
+                Intent login = new Intent(SplashScreenActivity.this, JoinHostActivity.class);
                 Bundle preData = new Bundle();
 
                 //Add data to bundle
