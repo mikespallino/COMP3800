@@ -22,9 +22,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.LoginScreenActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
-        <activity
             android:name=".activity.EventCreationActivity"
             android:theme="@style/Theme.AppCompat" />
         <activity
