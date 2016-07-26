@@ -60,7 +60,7 @@ def join():
         del post_data['key']
         try:
             if post_data['event_password'] is not None:
-                post_data['event_password'] = '"{}"'.format(post_data['event_password'])
+                post_data['event_password'] = '= ("{}")'.format(post_data['event_password'])
             else:
                 post_data['event_password'] = 'IS NULL'
             query = queries.JOIN_EVENT.format(**post_data)
