@@ -169,18 +169,9 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
                         eventNamePassword = eventPassword.getText().toString();
                         Log.v("DAMA [EVENT NAME]:", eventNameText);
                         Log.v("DAMA [EVENT PASSWORD]:", eventNamePassword);
-                        Intent hubIntent = new Intent(HostPlaylistPickerActivity.this, HubActivity.class);
-                        Bundle hubBundle = new Bundle();
-                        hubBundle.putString("event_name", eventNameText);
-                        hubBundle.putString("event_password", eventNamePassword);
-                        hubBundle.putString("playlist_name", selectedPlaylist);
-                        hubBundle.putStringArrayList("playlist_songs", playlistSongs);
-                        hubIntent.putExtras(hubBundle);
 
                         CreateEventTask createEvent = new CreateEventTask(eventNameText, eventNamePassword, selectedPlaylist, playlistSongs, allSongs);
                         createEvent.execute();
-
-                        startActivity(hubIntent);
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -225,7 +216,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
                 hostData.put("playlist_songs", new JSONArray(playlistSongs));
                 hostData.put("all_songs", new JSONArray(allSongs));
             } catch (org.json.JSONException e) {
-                Log.v("DAMA", "SHIT BROKE YO.");
+                Log.v("DAMA", "Couldn't format JSON.");
             }
 
             HttpURLConnection conn = null;
@@ -263,9 +254,12 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
                 br.close();
                 Log.v("DAMA-POST", sb.toString());
 
-                //try {Thread.sleep(5000); } catch (InterruptedException e) {}
+                JSONObject data = new JSONObject(sb.toString());
+                // TODO: Verify response
 
                 conn.disconnect();
+
+                onPostExecute(1L);
 
             }catch (Exception ex) {
                 Log.e("DAMA", ex.toString());
@@ -273,6 +267,17 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
                 return "Error";
             }
             return "Done";
+        }
+
+        protected void onPostExecute(Long result) {
+            Intent hubIntent = new Intent(HostPlaylistPickerActivity.this, HubActivity.class);
+            Bundle hubBundle = new Bundle();
+            hubBundle.putString("event_name", eventNameText);
+            hubBundle.putString("event_password", eventNamePassword);
+            hubBundle.putString("playlist_name", selectedPlaylist);
+            hubBundle.putStringArrayList("playlist_songs", playlistSongs);
+            hubIntent.putExtras(hubBundle);
+            startActivity(hubIntent);
         }
     }
 

@@ -259,7 +259,6 @@ public class JoinEventPickerActivity extends AppCompatActivity {
                     allSongs.add(all_songs.getString(i));
                 }
                 playlistName = event_data.getString("playlist_name");
-                //try {Thread.sleep(5000); } catch (InterruptedException e) {}
 
                 conn.disconnect();
 
