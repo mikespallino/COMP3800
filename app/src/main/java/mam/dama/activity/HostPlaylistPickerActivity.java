@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.INotificationSideChannel;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
@@ -23,19 +22,14 @@ import android.widget.SearchView;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.json.*;
 
@@ -183,7 +177,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
                         hubBundle.putStringArrayList("playlist_songs", playlistSongs);
                         hubIntent.putExtras(hubBundle);
 
-                        CreateEvent createEvent = new CreateEvent(eventNameText, eventNamePassword, selectedPlaylist, playlistSongs, allSongs);
+                        CreateEventTask createEvent = new CreateEventTask(eventNameText, eventNamePassword, selectedPlaylist, playlistSongs, allSongs);
                         createEvent.execute();
 
                         startActivity(hubIntent);
@@ -201,12 +195,12 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
         });
     }
 
-    class CreateEvent extends AsyncTask<String, Void, String> {
+    class CreateEventTask extends AsyncTask<String, Void, String> {
 
         private String eventNameText, eventNamePassword, selectedPlaylist;
         private ArrayList<String> playlistSongs, allSongs;
 
-        public CreateEvent(String eventName, String eventPassword, String selectedPlaylist, ArrayList<String> playlistSongs, ArrayList<String> allSongs){
+        public CreateEventTask(String eventName, String eventPassword, String selectedPlaylist, ArrayList<String> playlistSongs, ArrayList<String> allSongs){
             super();
             this.eventNameText = eventName;
             this.eventNamePassword = eventPassword;

@@ -31,9 +31,11 @@
             android:name=".activity.HostPlaylistPickerActivity"
             android:theme="@style/Theme.AppCompat" />
         <activity
+            android:name=".activity.JoinEventPickerActivity"
+            android:theme="@style/Theme.AppCompat" />
+        <activity
             android:name=".activity.HubActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"></activity>
-        <activity android:name=".activity.JoinEventPickerActivity"></activity>
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
     </application>
 
 </manifest>
