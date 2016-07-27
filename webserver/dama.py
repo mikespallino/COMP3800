@@ -24,7 +24,8 @@ errors = {
 
 @bottle.route('/host', method='POST')
 def host():
-    valid_keys = ['event_name', 'event_password', 'playlist_name', 'playlist_songs', 'all_songs', 'location', 'key']
+    valid_keys = ['event_name', 'event_password', 'playlist_name', 'playlist_songs', 'all_songs', 'location', 'key',
+                  'playlist_id']
     post_data = bottle.request.json
     validated = validate_response(post_data, valid_keys)
     if isinstance(validated, str):
@@ -36,7 +37,8 @@ def host():
             cur = con.cursor()
             cur.execute(queries.CREATE_EVENT, (post_data['event_name'], post_data['event_password'],
                                                post_data['playlist_name'], ';'.join(post_data['playlist_songs']),
-                                               ';'.join(post_data['all_songs']), post_data['location'],))
+                                               ';'.join(post_data['all_songs']), post_data['location'],
+                                               post_data['playlist_id'],))
             con.commit()
         except Exception as e:
             print(e)

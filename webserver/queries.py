@@ -1,6 +1,6 @@
 CREATE_EVENT = """
-               INSERT INTO DAMA.events (event_name, event_password, playlist_name, playlist_songs, all_songs, location)
-               VALUES (%s,%s,%s,%s,%s,%s);
+               INSERT INTO DAMA.events (event_name, event_password, playlist_name, playlist_songs, all_songs, location, playlist_id)
+               VALUES (%s,%s,%s,%s,%s,%s,%s);
                """
 DISCOVER_EVENT = """
                  SELECT event_name FROM DAMA.events WHERE location = (%s);
