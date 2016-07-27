@@ -282,6 +282,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
             hubBundle.putLong("playlist_id", selectedPlaylistId);
             hubIntent.putExtras(hubBundle);
             startActivity(hubIntent);
+            finish();
         }
     }
 

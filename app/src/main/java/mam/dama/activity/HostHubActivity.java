@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +35,18 @@ public class HostHubActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_host_hub);
 
+        TextView eventName = (TextView) findViewById(R.id.event_name);
+        final TextView currentlyPlaying = (TextView) findViewById(R.id.currently_plaing_meta);
+
         Bundle prevBundle = getIntent().getExtras();
+
+        String nameText = prevBundle.getString("event_name");
+        if (nameText != null) {
+            nameText = "Event: " + nameText;
+        } else {
+            nameText = "Event: UNKOWN";
+        }
+        eventName.setText(nameText);
 
         ImageButton playButton = (ImageButton) findViewById(R.id.play_button);
         ImageButton pauseButton = (ImageButton) findViewById(R.id.pause_button);
@@ -46,7 +58,7 @@ public class HostHubActivity extends AppCompatActivity {
         Cursor musicCursor = resolver.query(musicPath, new String[] {"*"}, null, null, null);
         final ArrayList<Uri> songUris = new ArrayList<>();
 
-        ArrayList<String> songs = prevBundle.getStringArrayList("playlist_songs");
+        final ArrayList<String> songs = prevBundle.getStringArrayList("playlist_songs");
         Log.v("SONGS", songs.toString());
         for (int i = 0; i < musicCursor.getCount(); i++) {
             musicCursor.moveToPosition(i);
@@ -90,6 +102,8 @@ public class HostHubActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("MUSIC", "Could not play music");
                 }
+
+                currentlyPlaying.setText(songs.get(currentSong));
             }
         });
 
@@ -97,6 +111,7 @@ public class HostHubActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 mediaPlayer.start();
+                currentlyPlaying.setText(songs.get(currentSong));
             }
         });
 
@@ -135,6 +150,8 @@ public class HostHubActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("MUSIC", "Could not play music");
                 }
+
+                currentlyPlaying.setText(songs.get(currentSong));
             }
         });
 
