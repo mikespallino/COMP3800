@@ -8,22 +8,6 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <TextView
-            android:id="@+id/event_name"
-            android:textSize="30sp"
-            android:layout_marginTop="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:text="@string/playing"
-            android:textSize="30sp"
-            android:layout_marginTop="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:text="@string/textView_metadata"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
         <LinearLayout
             android:padding="20dp"
             android:orientation="horizontal"

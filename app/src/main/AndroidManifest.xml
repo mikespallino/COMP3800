@@ -36,6 +36,9 @@
         <activity
             android:name=".activity.HubActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name=".activity.HostHubActivity"
+            android:theme="@style/Theme.AppCompat" />
     </application>
 
 </manifest>

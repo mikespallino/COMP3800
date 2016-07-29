@@ -37,19 +37,11 @@ public class PlaylistFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_playlist, container, false);
-
-        TextView eventName = (TextView)(rootView.findViewById(R.id.event_name));
         addRequest = (Button)(rootView.findViewById(R.id.button_addRequest));
         viewRequest = (Button)(rootView.findViewById(R.id.button_viewRequest));
 
 
         Bundle prevBundle = getArguments();
-        String nameText = prevBundle.getString("event_name");
-        if (nameText != null) {
-            nameText = "Event: " + nameText;
-        } else {
-            nameText = "Event: UNKOWN";
-        }
 
         ArrayList<String> playlistSongs = prevBundle.getStringArrayList("playlist_songs");
         ListView playlistView = (ListView) rootView.findViewById(R.id.listView_currentPlaylist);
@@ -58,8 +50,6 @@ public class PlaylistFragment extends Fragment {
                 android.R.layout.simple_list_item_1, playlistSongs);
 
         playlistView.setAdapter(adapter);
-
-        eventName.setText(nameText);
         addRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

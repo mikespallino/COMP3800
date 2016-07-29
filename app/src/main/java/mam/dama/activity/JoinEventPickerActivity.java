@@ -2,6 +2,7 @@ package mam.dama.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -35,26 +37,24 @@ public class JoinEventPickerActivity extends AppCompatActivity {
 
     private String eventNameText = "";
     private String eventNamePassword = "";
+    private ArrayAdapter<String> adapter;
+    private ListView eventView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_event_picker);
 
-        // Add the event items
-        ArrayList<String> eventItems = new ArrayList<>();
-//        for (int i = 0; i < 15; i ++) {
-//            eventItems.add("Event #" + i);
-//        }
+        final ArrayList<String> eventItems = new ArrayList<>();
+        adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1,
+                eventItems);
+
         // TODO:Boston should be replaced later.
         DiscoverEventsTask events = new DiscoverEventsTask("Boston", eventItems);
         events.execute();
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1,
-                eventItems);
-
-        final ListView eventView = (ListView) findViewById(R.id.eventListView);
+        eventView = (ListView) findViewById(R.id.eventListView);
         eventView.setAdapter(adapter);
 
         SearchView eventSearchBar = (SearchView) findViewById(R.id.eventSearchView);
@@ -102,6 +102,17 @@ public class JoinEventPickerActivity extends AppCompatActivity {
                 });
 
                 builder.show();
+            }
+        });
+
+        ImageButton refresh = (ImageButton) findViewById(R.id.refresh_button);
+        refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DiscoverEventsTask events = new DiscoverEventsTask("Boston", eventItems);
+                events.execute();
+
+                adapter.notifyDataSetChanged();
             }
         });
     }
@@ -164,6 +175,7 @@ public class JoinEventPickerActivity extends AppCompatActivity {
                 Log.v("DAMA-POST", sb.toString());
 
                 event_data = new JSONObject(sb.toString());
+                eventItems.clear();
                 JSONArray event_list = event_data.getJSONArray("event_list");
                 for(int i = 0; i < event_list.length(); i++) {
                     eventItems.add(event_list.getString(i));
@@ -283,19 +295,8 @@ public class JoinEventPickerActivity extends AppCompatActivity {
                 hubBundle.putStringArrayList("playlist_songs", playlistSongs);
                 hubIntent.putExtras(hubBundle);
                 startActivity(hubIntent);
+                finish();
             }
-        }
-
-        public String getPlaylistName() {
-            return playlistName;
-        }
-
-        public ArrayList<String> getPlaylistSongs() {
-            return playlistSongs;
-        }
-
-        public ArrayList<String> getAllSongs() {
-            return allSongs;
         }
     }
 }

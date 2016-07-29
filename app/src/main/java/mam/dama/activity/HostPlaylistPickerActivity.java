@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -38,6 +39,7 @@ import mam.dama.R;
 public class HostPlaylistPickerActivity extends AppCompatActivity {
     private String eventNameText = "";
     private String eventNamePassword = "";
+    private long selectedPlaylistId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +115,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final String selectedPlaylist = (String) playlistView.getItemAtPosition(position);
-                final long selectedPlaylistId = playlistIDMap.get(selectedPlaylist);
+                selectedPlaylistId = playlistIDMap.get(selectedPlaylist);
                 final ArrayList<String> playlistSongs = new ArrayList<>();
                 final ArrayList<String> allSongs = new ArrayList<String>();
 
@@ -150,7 +152,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
                         if(tracks != null) {
                             for (int i = 0; i < tracks.getCount(); i++) {
                                 tracks.moveToPosition(i);
-                                int dataIndex = tracks.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME);
+                                int dataIndex = tracks.getColumnIndex(MediaStore.Audio.Media.TITLE);
                                 String trackName = tracks.getString(dataIndex);
                                 playlistSongs.add(trackName);
                             }
@@ -215,6 +217,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
                 hostData.put("playlist_name", selectedPlaylist);
                 hostData.put("playlist_songs", new JSONArray(playlistSongs));
                 hostData.put("all_songs", new JSONArray(allSongs));
+                hostData.put("playlist_id", selectedPlaylistId);
             } catch (org.json.JSONException e) {
                 Log.v("DAMA", "Couldn't format JSON.");
             }
@@ -270,14 +273,16 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Long result) {
-            Intent hubIntent = new Intent(HostPlaylistPickerActivity.this, HubActivity.class);
+            Intent hubIntent = new Intent(HostPlaylistPickerActivity.this, HostHubActivity.class);
             Bundle hubBundle = new Bundle();
             hubBundle.putString("event_name", eventNameText);
             hubBundle.putString("event_password", eventNamePassword);
             hubBundle.putString("playlist_name", selectedPlaylist);
             hubBundle.putStringArrayList("playlist_songs", playlistSongs);
+            hubBundle.putLong("playlist_id", selectedPlaylistId);
             hubIntent.putExtras(hubBundle);
             startActivity(hubIntent);
+            finish();
         }
     }
 
