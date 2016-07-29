@@ -9,7 +9,7 @@ DELETE_EVENT = """
                DELETE FROM DAMA.events WHERE event_name = ("{event_name}") AND event_password {event_password};
                """
 JOIN_EVENT = """
-             SELECT playlist_name, playlist_songs, all_songs FROM DAMA.events
+             SELECT playlist_name, playlist_songs, all_songs, event_uuid FROM DAMA.events
              WHERE event_name = ("{event_name}") AND event_password {event_password};
              """
 SET_CUR_PLAY = """
