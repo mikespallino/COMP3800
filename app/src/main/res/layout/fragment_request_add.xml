@@ -5,9 +5,9 @@
     tools:context="mam.dama.Fragment.RequestAddFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ListView
+        android:id="@+id/add_songs"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="TEMP" />
+        android:layout_height="match_parent" />
 
 </FrameLayout>

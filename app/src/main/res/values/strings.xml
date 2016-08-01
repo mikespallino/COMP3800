@@ -14,7 +14,7 @@
     <string name="or">or</string>
 
     <!--Dynamic TextViews-->
-    <string name="textView_metadata">METADATA HERE</string>
+    <string name="textView_metadata">...</string>
 
     <!--Buttons-->
     <string name="button_connect">Connect</string>

@@ -46,6 +46,7 @@ public class JoinEventPickerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_join_event_picker);
 
         final ArrayList<String> eventItems = new ArrayList<>();
+        final ArrayList<String> eventItemsCopy = new ArrayList<>(eventItems);
         adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1,
                 eventItems);
@@ -58,7 +59,33 @@ public class JoinEventPickerActivity extends AppCompatActivity {
         eventView.setAdapter(adapter);
 
         SearchView eventSearchBar = (SearchView) findViewById(R.id.eventSearchView);
-        // TODO: make this actually search.
+        eventSearchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // Fake it till we make it!
+                // Here we are *attempting* to to rudimentary searches through the playlist for text
+                for (int i = 0; i < eventItems.size(); i++) {
+                    if (!eventItems.get(i).toLowerCase().contains(query.toLowerCase())) {
+                        eventItems.remove(i);
+                    }
+                }
+                adapter.notifyDataSetChanged();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // If the search text has changed, we need to change our data back to the original list
+                for (int i = 0; i < eventItemsCopy.size(); i++) {
+                    if (!eventItems.contains(eventItemsCopy.get(i))) {
+                        eventItems.add(eventItemsCopy.get(i));
+                    }
+                }
+                adapter.notifyDataSetChanged();
+                return false;
+            }
+
+        });
 
         // Display the Alert Dialog
         eventView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -111,8 +138,6 @@ public class JoinEventPickerActivity extends AppCompatActivity {
             public void onClick(View v) {
                 DiscoverEventsTask events = new DiscoverEventsTask("Boston", eventItems);
                 events.execute();
-
-                adapter.notifyDataSetChanged();
             }
         });
     }
@@ -193,6 +218,17 @@ public class JoinEventPickerActivity extends AppCompatActivity {
             return "Done";
         }
 
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    adapter.notifyDataSetChanged();
+                }
+            });
+        }
+
         public JSONObject getEvents() {
             return event_data;
         }
@@ -200,7 +236,7 @@ public class JoinEventPickerActivity extends AppCompatActivity {
 
     class JoinEventTask extends AsyncTask<String, Void, String> {
 
-        private String eventNameText, eventNamePassword, playlistName;
+        private String eventNameText, eventNamePassword, playlistName, event_uuid;
         private ArrayList<String> playlistSongs, allSongs;
 
         public JoinEventTask(String eventName, String eventPassword){
@@ -265,16 +301,15 @@ public class JoinEventPickerActivity extends AppCompatActivity {
                 for(int i = 0; i < playlist_songs.length(); i++) {
                     playlistSongs.add(playlist_songs.getString(i));
                 }
-                JSONArray all_songs = event_data.getJSONArray("playlist_songs");
+                JSONArray all_songs = event_data.getJSONArray("all_songs");
                 allSongs = new ArrayList<>();
                 for(int i = 0; i < all_songs.length(); i++) {
                     allSongs.add(all_songs.getString(i));
                 }
                 playlistName = event_data.getString("playlist_name");
+                event_uuid = event_data.getString("event_uuid");
 
                 conn.disconnect();
-
-                onPostExecute(1L);
 
             }catch (Exception ex) {
                 Log.e("DAMA", ex.toString());
@@ -284,7 +319,8 @@ public class JoinEventPickerActivity extends AppCompatActivity {
             return "Done";
         }
 
-        protected void onPostExecute(Long result) {
+        @Override
+        protected void onPostExecute(String s) {
             if(playlistSongs == null && allSongs == null) {
                 Log.e("DAMA", "Did not join an event!");
             } else {
@@ -293,6 +329,8 @@ public class JoinEventPickerActivity extends AppCompatActivity {
                 hubBundle.putString("event_name", eventNameText);
                 //TODO: Fill this in with the songs from the event.
                 hubBundle.putStringArrayList("playlist_songs", playlistSongs);
+                hubBundle.putString("event_uuid", event_uuid);
+                hubBundle.putStringArrayList("all_songs", allSongs);
                 hubIntent.putExtras(hubBundle);
                 startActivity(hubIntent);
                 finish();

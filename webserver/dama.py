@@ -2,6 +2,7 @@ import bottle
 import pymysql
 import json
 import configparser
+import uuid
 
 import queries
 
@@ -24,9 +25,10 @@ errors = {
 
 @bottle.route('/host', method='POST')
 def host():
-    valid_keys = ['event_name', 'event_password', 'playlist_name', 'playlist_songs', 'all_songs', 'location', 'key',
-                  'playlist_id']
+    valid_keys = ['event_uuid', 'event_name', 'event_password', 'playlist_name', 'playlist_songs', 'all_songs',
+                  'location', 'key', 'cur_play']
     post_data = bottle.request.json
+    post_data['event_uuid'] = uuid.uuid4().hex
     validated = validate_response(post_data, valid_keys)
     if isinstance(validated, str):
         return bottle.redirect('/error/{}'.format(errors['server'].format(validated)))
@@ -35,10 +37,11 @@ def host():
         try:
             con = pymysql.connect(**db_creds)
             cur = con.cursor()
-            cur.execute(queries.CREATE_EVENT, (post_data['event_name'], post_data['event_password'],
-                                               post_data['playlist_name'], ';'.join(post_data['playlist_songs']),
+            cur.execute(queries.CREATE_EVENT, (post_data['event_uuid'], post_data['event_name'],
+                                               post_data['event_password'], post_data['playlist_name'],
+                                               ';'.join(post_data['playlist_songs']),
                                                ';'.join(post_data['all_songs']), post_data['location'],
-                                               post_data['playlist_id'],))
+                                               post_data['cur_play'],))
             con.commit()
         except Exception as e:
             print(e)
@@ -47,7 +50,7 @@ def host():
             cur.close()
             con.close()
 
-    return {'THANKS!': 123}
+    return {'event': post_data['event_uuid']}
 
 
 @bottle.route('/join', method='POST')
@@ -70,6 +73,7 @@ def join():
             cur = con.cursor()
             cur.execute(query)
             result = cur.fetchone()
+            event_data['event_uuid'] = result['event_uuid']
             event_data['playlist_name'] = result['playlist_name']
             event_data['playlist_songs'] = result['playlist_songs'].split(';')
             event_data['all_songs'] = result['all_songs'].split(';')
@@ -133,7 +137,56 @@ def delete_event():
         finally:
             cur.close()
             con.close()
-        return 'Event Deleted!'
+        return {'Event Deleted!': 0}
+
+
+@bottle.route('/gcp', method='POST')
+def get_currently_playing():
+    valid_keys = ['event_uuid', 'key']
+    post_data = bottle.request.json
+    validated = validate_response(post_data, valid_keys)
+    response = {}
+    if isinstance(validated, str):
+        return bottle.redirect('/error/{}'.format(errors['server'].format(validated)))
+    else:
+        try:
+            query = queries.GET_CUR_PLAY
+            con = pymysql.connect(**db_creds)
+            cur = con.cursor()
+            cur.execute(query, (post_data['event_uuid'],))
+            result = cur.fetchone()
+            response['cur_play'] = result['cur_play']
+        except Exception as e:
+            print(e)
+            bottle.redirect('/error/{}'.format(errors['database']))
+        finally:
+            cur.close()
+            con.close()
+        return json.dumps(response)
+
+
+@bottle.route('/scp', method='POST')
+def set_currently_playing():
+    valid_keys = ['event_uuid', 'cur_play', 'key']
+    post_data = bottle.request.json
+    validated = validate_response(post_data, valid_keys)
+    if isinstance(validated, str):
+        return bottle.redirect('/error/{}'.format(errors['server'].format(validated)))
+    else:
+        try:
+            del post_data['key']
+            query = queries.SET_CUR_PLAY
+            con = pymysql.connect(**db_creds)
+            cur = con.cursor()
+            cur.execute(query, (post_data['cur_play'], post_data['event_uuid'],))
+            con.commit()
+        except Exception as e:
+            print(e)
+            bottle.redirect('/error/{}'.format(errors['database']))
+        finally:
+            cur.close()
+            con.close()
+        return {'status': 'OK'}
 
 
 @bottle.route('/error/<code>')
