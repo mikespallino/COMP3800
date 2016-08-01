@@ -4,10 +4,25 @@
     android:layout_height="match_parent"
     tools:context="mam.dama.Fragment.RequestViewFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <ListView
-        android:id="@+id/song_requests"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="30dp"
+        android:paddingTop="30dp"
+        android:paddingRight="30dp"
+        android:paddingBottom="30dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/requests"
+            android:textSize="30sp"
+            android:layout_gravity="center_horizontal" />
+        <ListView
+            android:id="@+id/song_requests"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/border"/>
+    </LinearLayout>
 
 </FrameLayout>

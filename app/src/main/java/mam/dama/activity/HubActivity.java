@@ -63,7 +63,7 @@ public class HubActivity extends AppCompatActivity {
         GetCurrentlyPlaying gcp = new GetCurrentlyPlaying(eventUuid);
         gcp.execute();
 
-        scheduler.schedule(new GCPTask(), 3, TimeUnit.MINUTES);
+        scheduler.schedule(new GCPTask(), 1, TimeUnit.MINUTES);
 
         if(savedInstanceState==null){
             FragmentManager fm = getFragmentManager();
