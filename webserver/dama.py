@@ -189,6 +189,57 @@ def set_currently_playing():
         return {'status': 'OK'}
 
 
+@bottle.route('/make_req', method='POST')
+def make_request():
+    valid_keys = ['event_uuid', 'song_title', 'key']
+    post_data = bottle.request.json
+    validated = validate_response(post_data, valid_keys)
+    if isinstance(validated, str):
+        return bottle.redirect('/error/{}'.format(errors['server'].format(validated)))
+    else:
+        try:
+            del post_data['key']
+            query = queries.MAKE_REQUEST
+            con = pymysql.connect(**db_creds)
+            cur = con.cursor()
+            cur.execute(query, (post_data['event_uuid'], post_data['song_title'],))
+            con.commit()
+        except Exception as e:
+            print(e)
+            bottle.redirect('/error/{}'.format(errors['database']))
+        finally:
+            cur.close()
+            con.close()
+        return {'status': 'OK'}
+
+
+@bottle.route('/get_req', method='POST')
+def get_requests():
+    valid_keys = ['event_uuid', 'key']
+    post_data = bottle.request.json
+    validated = validate_response(post_data, valid_keys)
+    response = {'songs': []}
+    if isinstance(validated, str):
+        return bottle.redirect('/error/{}'.format(errors['server'].format(validated)))
+    else:
+        try:
+            del post_data['key']
+            query = queries.GET_REQUESTS
+            con = pymysql.connect(**db_creds)
+            cur = con.cursor()
+            cur.execute(query, (post_data['event_uuid'],))
+            results = cur.fetchall()
+            for result in results:
+                response['songs'].append(result)
+        except Exception as e:
+            print(e)
+            bottle.redirect('/error/{}'.format(errors['database']))
+        finally:
+            cur.close()
+            con.close()
+        return json.dumps(response)
+
+
 @bottle.route('/error/<code>')
 def error(code):
     return json.dumps({'error': code})
