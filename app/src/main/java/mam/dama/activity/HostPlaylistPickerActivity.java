@@ -289,6 +289,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
             hubBundle.putStringArrayList("playlist_songs", playlistSongs);
             hubBundle.putLong("playlist_id", selectedPlaylistId);
             hubBundle.putString("event_uuid", eventUUID);
+            hubBundle.putStringArrayList("all_songs", allSongs);
             hubIntent.putExtras(hubBundle);
             startActivity(hubIntent);
             finish();

@@ -18,3 +18,9 @@ SET_CUR_PLAY = """
 GET_CUR_PLAY = """
                SELECT cur_play FROM DAMA.events WHERE event_uuid=%s;
                """
+MAKE_REQUEST = """
+               INSERT INTO DAMA.requests (event_uuid, song_title) VALUES (%s,%s);
+               """
+GET_REQUESTS = """
+               SELECT song_title FROM DAMA.requests WHERE event_uuid=%s;
+               """
