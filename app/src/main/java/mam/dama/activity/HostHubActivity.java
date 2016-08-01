@@ -91,11 +91,13 @@ public class HostHubActivity extends AppCompatActivity {
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
-        try {
-            mediaPlayer.setDataSource(getApplicationContext(), songUris.get(currentSong));
-            mediaPlayer.prepare();
-        } catch (IOException e) {
-            Log.e("MUSIC", "Could not play music");
+        if (songs.size() != 0) {
+            try {
+                mediaPlayer.setDataSource(getApplicationContext(), songUris.get(currentSong));
+                mediaPlayer.prepare();
+            } catch (IOException e) {
+                Log.e("MUSIC", "Could not play music");
+            }
         }
 
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -271,17 +273,12 @@ public class HostHubActivity extends AppCompatActivity {
                 JSONObject event_data = new JSONObject(sb.toString());
                 conn.disconnect();
 
-                onPostExecute(1L);
-
             }catch (Exception ex) {
                 Log.e("DAMA", ex.toString());
                 Log.e("DAMA", ex.getLocalizedMessage());
                 return "Error";
             }
             return "Done";
-        }
-
-        protected void onPostExecute(Long result) {
         }
     }
 }

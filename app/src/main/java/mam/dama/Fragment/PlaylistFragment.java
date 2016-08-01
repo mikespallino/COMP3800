@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +42,7 @@ public class PlaylistFragment extends Fragment {
         viewRequest = (Button)(rootView.findViewById(R.id.button_viewRequest));
 
 
-        Bundle prevBundle = getArguments();
+        final Bundle prevBundle = getArguments();
 
         ArrayList<String> playlistSongs = prevBundle.getStringArrayList("playlist_songs");
         ListView playlistView = (ListView) rootView.findViewById(R.id.listView_currentPlaylist);
@@ -53,10 +54,9 @@ public class PlaylistFragment extends Fragment {
         addRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bundle request_add = new Bundle();
                 FragmentManager fm = getFragmentManager();
                 Fragment fragment = new RequestAddFragment();
-                fragment.setArguments(request_add);
+                fragment.setArguments(prevBundle);
                 fm.beginTransaction().replace(R.id.content_hub,fragment).addToBackStack(null).commit();
             }
         });
@@ -64,10 +64,9 @@ public class PlaylistFragment extends Fragment {
         viewRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bundle request_view = new Bundle();
                 FragmentManager fm = getFragmentManager();
                 Fragment fragment = new RequestViewFragment();
-                fragment.setArguments(request_view);
+                fragment.setArguments(prevBundle);
                 fm.beginTransaction().replace(R.id.content_hub,fragment).addToBackStack(null).commit();
             }
         });

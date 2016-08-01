@@ -50,6 +50,8 @@ public class HubActivity extends AppCompatActivity {
         Bundle prevBundle = getIntent().getExtras();
         eventUuid = prevBundle.getString("event_uuid");
 
+        Log.v("DAMA-HUB", prevBundle.toString());
+
         String nameText = prevBundle.getString("event_name");
         if (nameText != null) {
             nameText = "Event: " + nameText;
@@ -156,8 +158,6 @@ public class HubActivity extends AppCompatActivity {
                 cur_play = event_data.getString("cur_play");
                 conn.disconnect();
 
-                onPostExecute(1L);
-
             }catch (Exception ex) {
                 Log.e("DAMA", ex.toString());
                 Log.e("DAMA", ex.getLocalizedMessage());
@@ -166,10 +166,17 @@ public class HubActivity extends AppCompatActivity {
             return "Done";
         }
 
-        protected void onPostExecute(Long result) {
-            curPlayingMeta.setText(cur_play);
-            curPlayingMeta.invalidate();
+        @Override
+        protected void onPostExecute(String s) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    curPlayingMeta.setText(cur_play);
+                    curPlayingMeta.invalidate();
+                }
+            });
         }
+
     }
 
     private class GCPTask implements Runnable {

@@ -166,7 +166,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
                         if(all_media != null) {
                             for (int i = 0; i < all_media.getCount(); i++) {
                                 all_media.moveToPosition(i);
-                                allSongs.add(all_media.getString(all_media.getColumnIndex(MediaStore.Audio.Media.DATA)));
+                                allSongs.add(all_media.getString(all_media.getColumnIndex(MediaStore.Audio.Media.TITLE)));
                             }
                         }
 
@@ -221,7 +221,11 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
                 hostData.put("playlist_name", selectedPlaylist);
                 hostData.put("playlist_songs", new JSONArray(playlistSongs));
                 hostData.put("all_songs", new JSONArray(allSongs));
-                hostData.put("cur_play", playlistSongs.get(0));
+                if (playlistSongs.size() == 0) {
+                    hostData.put("cur_play", "");
+                } else {
+                    hostData.put("cur_play", playlistSongs.get(0));
+                }
             } catch (org.json.JSONException e) {
                 Log.v("DAMA", "Couldn't format JSON.");
             }
@@ -267,8 +271,6 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
 
                 conn.disconnect();
 
-                onPostExecute(1L);
-
             }catch (Exception ex) {
                 Log.e("DAMA", ex.toString());
                 Log.e("DAMA", ex.getLocalizedMessage());
@@ -277,7 +279,8 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
             return "Done";
         }
 
-        protected void onPostExecute(Long result) {
+        @Override
+        protected void onPostExecute(String s) {
             Intent hubIntent = new Intent(HostPlaylistPickerActivity.this, HostHubActivity.class);
             Bundle hubBundle = new Bundle();
             hubBundle.putString("event_name", eventNameText);
@@ -290,6 +293,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
             startActivity(hubIntent);
             finish();
         }
+
     }
 
 }
