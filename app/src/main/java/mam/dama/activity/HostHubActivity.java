@@ -3,6 +3,7 @@ package mam.dama.activity;
 import android.app.FragmentManager;
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -47,6 +48,8 @@ public class HostHubActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_host_hub);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.app_toolbar);
+        setSupportActionBar(toolbar);
 
         TextView eventName = (TextView) findViewById(R.id.event_name);
         final TextView currentlyPlaying = (TextView) findViewById(R.id.currently_plaing_meta);
@@ -55,7 +58,6 @@ public class HostHubActivity extends AppCompatActivity {
 
         String nameText = prevBundle.getString("event_name");
         event_uuid = prevBundle.getString("event_uuid");
-        final SetCurrentlyPlaying setCurPlayTask = new SetCurrentlyPlaying();
         if (nameText != null) {
             nameText = "Event: " + nameText;
         } else {
@@ -63,8 +65,8 @@ public class HostHubActivity extends AppCompatActivity {
         }
         eventName.setText(nameText);
 
-        ImageButton playButton = (ImageButton) findViewById(R.id.play_button);
-        ImageButton pauseButton = (ImageButton) findViewById(R.id.pause_button);
+        final ImageButton playButton = (ImageButton) findViewById(R.id.play_button);
+        final ImageButton pauseButton = (ImageButton) findViewById(R.id.pause_button);
         final ImageButton shuffleButton = (ImageButton) findViewById(R.id.shuffle_button);
         ImageButton skipButton = (ImageButton) findViewById(R.id.skip_button);
 
@@ -103,26 +105,29 @@ public class HostHubActivity extends AppCompatActivity {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                if(shuffleEnabled) {
+                if(songUris.size() > 1 && songs.size() > 1) {
                     songUris.remove(currentSong);
-                    currentSong = (int) (Math.random() * songUris.size());
-                } else {
-                    currentSong++;
+                    songs.remove(currentSong);
+                    if (shuffleEnabled) {
+                        currentSong = (int) (Math.random() * songUris.size());
+                    }
+
+                    Log.v("SONG LIST:", songs.toString());
+                    Log.v("SONG:", songs.get(currentSong));
+                    Log.v("SONG ID, LIST SIZE", "" + currentSong + ", " + songUris.size());
+
+                    try {
+                        mediaPlayer.setDataSource(getApplicationContext(), songUris.get(currentSong));
+                        mediaPlayer.prepare();
+                        mediaPlayer.start();
+                    } catch (IOException e) {
+                        Log.e("MUSIC", "Could not play music");
+                    }
+                    SetCurrentlyPlaying setCurPlayTask = new SetCurrentlyPlaying();
+                    setCurPlayTask.execute();
+
+                    currentlyPlaying.setText(songs.get(currentSong));
                 }
-
-                Log.v("SONG ID, LIST SIZE", "" + currentSong + ", " + songUris.size());
-
-                try {
-                    mediaPlayer.setDataSource(getApplicationContext(), songUris.get(currentSong));
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                } catch (IOException e) {
-                    Log.e("MUSIC", "Could not play music");
-                }
-
-                setCurPlayTask.execute();
-
-                currentlyPlaying.setText(songs.get(currentSong));
             }
         });
 
@@ -131,6 +136,8 @@ public class HostHubActivity extends AppCompatActivity {
             public void onClick(View view) {
                 mediaPlayer.start();
                 currentlyPlaying.setText(songs.get(currentSong));
+                playButton.setColorFilter(Color.GREEN);
+                pauseButton.setColorFilter(Color.BLACK);
             }
         });
 
@@ -138,6 +145,8 @@ public class HostHubActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 mediaPlayer.pause();
+                pauseButton.setColorFilter(Color.GREEN);
+                playButton.setColorFilter(Color.BLACK);
             }
         });
 
@@ -145,33 +154,43 @@ public class HostHubActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 shuffleEnabled = !shuffleEnabled;
+                if(shuffleEnabled) {
+                    shuffleButton.setColorFilter(Color.GREEN);
+                } else {
+                    shuffleButton.setColorFilter(Color.BLACK);
+                }
             }
         });
 
         skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mediaPlayer.stop();
+                //mediaPlayer.stop();
                 mediaPlayer.reset();
-                if(shuffleEnabled) {
+                if(songUris.size() > 1 && songs.size() > 1) {
                     songUris.remove(currentSong);
-                    currentSong = (int) (Math.random() * songUris.size());
-                } else {
-                    currentSong++;
+                    songs.remove(currentSong);
+                    if (shuffleEnabled) {
+                        currentSong = (int) (Math.random() * songUris.size());
+                    }
+
+                    Log.v("SONG LIST:", songs.toString());
+                    Log.v("URI LIST:", songUris.toString());
+                    Log.v("SONG:", songs.get(currentSong));
+                    Log.v("SONG ID, LIST SIZE", "" + currentSong + ", " + songUris.size());
+
+                    try {
+                        mediaPlayer.setDataSource(getApplicationContext(), songUris.get(currentSong));
+                        mediaPlayer.prepare();
+                        mediaPlayer.start();
+                    } catch (IOException e) {
+                        Log.e("MUSIC", "Could not play music");
+                    }
+
+                    SetCurrentlyPlaying setCurPlayTask = new SetCurrentlyPlaying();
+                    setCurPlayTask.execute();
+                    currentlyPlaying.setText(songs.get(currentSong));
                 }
-
-                Log.v("SONG ID, LIST SIZE", "" + currentSong + ", " + songUris.size());
-
-                try {
-                    mediaPlayer.setDataSource(getApplicationContext(), songUris.get(currentSong));
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                } catch (IOException e) {
-                    Log.e("MUSIC", "Could not play music");
-                }
-
-                setCurPlayTask.execute();
-                currentlyPlaying.setText(songs.get(currentSong));
             }
         });
 
