@@ -22,5 +22,5 @@ MAKE_REQUEST = """
                INSERT INTO DAMA.requests (event_uuid, song_title) VALUES (%s,%s);
                """
 GET_REQUESTS = """
-               SELECT song_title FROM DAMA.requests WHERE event_uid=%s;
+               SELECT song_title FROM DAMA.requests WHERE event_uuid=%s;
                """
