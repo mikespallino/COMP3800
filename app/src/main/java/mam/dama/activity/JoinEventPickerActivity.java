@@ -200,7 +200,7 @@ public class JoinEventPickerActivity extends AppCompatActivity {
 
     class JoinEventTask extends AsyncTask<String, Void, String> {
 
-        private String eventNameText, eventNamePassword, playlistName;
+        private String eventNameText, eventNamePassword, playlistName, event_uuid;
         private ArrayList<String> playlistSongs, allSongs;
 
         public JoinEventTask(String eventName, String eventPassword){
@@ -271,6 +271,7 @@ public class JoinEventPickerActivity extends AppCompatActivity {
                     allSongs.add(all_songs.getString(i));
                 }
                 playlistName = event_data.getString("playlist_name");
+                event_uuid = event_data.getString("event_uuid");
 
                 conn.disconnect();
 
@@ -293,6 +294,7 @@ public class JoinEventPickerActivity extends AppCompatActivity {
                 hubBundle.putString("event_name", eventNameText);
                 //TODO: Fill this in with the songs from the event.
                 hubBundle.putStringArrayList("playlist_songs", playlistSongs);
+                hubBundle.putString("event_uuid", event_uuid);
                 hubIntent.putExtras(hubBundle);
                 startActivity(hubIntent);
                 finish();

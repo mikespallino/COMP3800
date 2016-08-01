@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,8 +18,18 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 import mam.dama.Fragment.PlaylistFragment;
@@ -29,6 +40,8 @@ public class HostHubActivity extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
     private boolean shuffleEnabled = false;
     private int currentSong = 0;
+    private ArrayList<String> songs;
+    private String event_uuid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +54,8 @@ public class HostHubActivity extends AppCompatActivity {
         Bundle prevBundle = getIntent().getExtras();
 
         String nameText = prevBundle.getString("event_name");
+        event_uuid = prevBundle.getString("event_uuid");
+        final SetCurrentlyPlaying setCurPlayTask = new SetCurrentlyPlaying();
         if (nameText != null) {
             nameText = "Event: " + nameText;
         } else {
@@ -58,7 +73,7 @@ public class HostHubActivity extends AppCompatActivity {
         Cursor musicCursor = resolver.query(musicPath, new String[] {"*"}, null, null, null);
         final ArrayList<Uri> songUris = new ArrayList<>();
 
-        final ArrayList<String> songs = prevBundle.getStringArrayList("playlist_songs");
+        songs = prevBundle.getStringArrayList("playlist_songs");
         Log.v("SONGS", songs.toString());
         for (int i = 0; i < musicCursor.getCount(); i++) {
             musicCursor.moveToPosition(i);
@@ -102,6 +117,8 @@ public class HostHubActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("MUSIC", "Could not play music");
                 }
+
+                setCurPlayTask.execute();
 
                 currentlyPlaying.setText(songs.get(currentSong));
             }
@@ -151,6 +168,7 @@ public class HostHubActivity extends AppCompatActivity {
                     Log.e("MUSIC", "Could not play music");
                 }
 
+                setCurPlayTask.execute();
                 currentlyPlaying.setText(songs.get(currentSong));
             }
         });
@@ -195,5 +213,75 @@ public class HostHubActivity extends AppCompatActivity {
         mediaPlayer.release();
         mediaPlayer = null;
         super.onDestroy();
+    }
+
+    class SetCurrentlyPlaying extends AsyncTask<String, Void, String> {
+
+        public SetCurrentlyPlaying(){
+            super();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            JSONObject hostData = new JSONObject();
+            try {
+                Log.v("DAMA-SCP", event_uuid);
+                hostData.put("event_uuid", event_uuid);
+                hostData.put("cur_play", songs.get(currentSong));
+                hostData.put("key", "DAMA");
+            } catch (org.json.JSONException e) {
+                Log.v("DAMA", "Couldn't format JSON.");
+            }
+
+            Log.v("DAMA-SCP", hostData.toString());
+
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL("http://192.241.149.243:8080/scp");
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+                conn.setUseCaches(false);
+                conn.setInstanceFollowRedirects(true);
+                conn.connect();
+
+                OutputStream sendData = conn.getOutputStream();
+                OutputStreamWriter streamWriter = new OutputStreamWriter(sendData, "UTF-8");
+                streamWriter.write(hostData.toString());
+                streamWriter.flush();
+                streamWriter.close();
+
+                InputStream in = new BufferedInputStream(conn.getInputStream());
+
+                StringBuffer sb = new StringBuffer();
+                BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                String read;
+
+                while((read= br.readLine())!=null)
+                {
+                    sb.append(read);
+
+                }
+                br.close();
+                Log.v("DAMA-POST", sb.toString());
+
+                JSONObject event_data = new JSONObject(sb.toString());
+                conn.disconnect();
+
+                onPostExecute(1L);
+
+            }catch (Exception ex) {
+                Log.e("DAMA", ex.toString());
+                Log.e("DAMA", ex.getLocalizedMessage());
+                return "Error";
+            }
+            return "Done";
+        }
+
+        protected void onPostExecute(Long result) {
+        }
     }
 }

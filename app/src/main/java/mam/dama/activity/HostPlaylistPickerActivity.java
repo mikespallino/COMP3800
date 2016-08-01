@@ -40,6 +40,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
     private String eventNameText = "";
     private String eventNamePassword = "";
     private long selectedPlaylistId = 0;
+    private String eventUUID = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +50,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
         // The following is to query the device for playlists
         final String[] getAll = {"*"};
         final Uri tempPlaylistURI = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
+//        final Uri tempPlaylistURI = MediaStore.Audio.Playlists.INTERNAL_CONTENT_URI;
         final ContentResolver resolver = this.getContentResolver();
         final String id = MediaStore.Audio.Playlists._ID;
         final String name = MediaStore.Audio.Playlists.NAME;
@@ -59,6 +61,8 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
         // to get the playlist tracks
         final HashMap<String, Long> playlistIDMap = new HashMap<>();
 
+//        playlistCursor.moveToPosition(0);
+//        Log.v("PLAYLISTS", playlistCursor.getString(playlistCursor.getColumnIndex(name)));
         if(playlistCursor.getCount() == 0) {
             playlistIDMap.put("No playlists found!", -1l);
         } else {
@@ -217,7 +221,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
                 hostData.put("playlist_name", selectedPlaylist);
                 hostData.put("playlist_songs", new JSONArray(playlistSongs));
                 hostData.put("all_songs", new JSONArray(allSongs));
-                hostData.put("playlist_id", selectedPlaylistId);
+                hostData.put("cur_play", playlistSongs.get(0));
             } catch (org.json.JSONException e) {
                 Log.v("DAMA", "Couldn't format JSON.");
             }
@@ -258,7 +262,8 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
                 Log.v("DAMA-POST", sb.toString());
 
                 JSONObject data = new JSONObject(sb.toString());
-                // TODO: Verify response
+                eventUUID = data.getString("event");
+                Log.v("DAMA-HOST", eventUUID);
 
                 conn.disconnect();
 
@@ -280,6 +285,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
             hubBundle.putString("playlist_name", selectedPlaylist);
             hubBundle.putStringArrayList("playlist_songs", playlistSongs);
             hubBundle.putLong("playlist_id", selectedPlaylistId);
+            hubBundle.putString("event_uuid", eventUUID);
             hubIntent.putExtras(hubBundle);
             startActivity(hubIntent);
             finish();
