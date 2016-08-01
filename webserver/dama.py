@@ -230,7 +230,7 @@ def get_requests():
             cur.execute(query, (post_data['event_uuid'],))
             results = cur.fetchall()
             for result in results:
-                response['songs'].append(result)
+                response['songs'].append(result['song_title'])
         except Exception as e:
             print(e)
             bottle.redirect('/error/{}'.format(errors['database']))
