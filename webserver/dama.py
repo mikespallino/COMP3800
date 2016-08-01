@@ -50,7 +50,7 @@ def host():
             cur.close()
             con.close()
 
-    return {'THANKS!': 123}
+    return {'event': post_data['event_uuid']}
 
 
 @bottle.route('/join', method='POST')
