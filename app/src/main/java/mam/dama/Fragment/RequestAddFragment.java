@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -74,7 +75,7 @@ public class RequestAddFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final String songTitle = (String) addSongs.getItemAtPosition(position);
-                // The following sets up the Alert Dialog to create a new event.
+                // The following sets up the Alert Dialog to create confirm the request.
                 AlertDialog.Builder builder = new AlertDialog.Builder(rootView.getContext());
                 builder.setTitle("Are you sure?");
 
@@ -174,6 +175,12 @@ public class RequestAddFragment extends Fragment {
             }catch (Exception ex) {
                 Log.e("DAMA", ex.toString());
                 Log.e("DAMA", ex.getLocalizedMessage());
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), "Failed to make request.", Toast.LENGTH_SHORT).show();
+                    }
+                });
                 return "Error";
             }
             return "Done";

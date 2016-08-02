@@ -2,6 +2,7 @@ package mam.dama.activity;
 
 import android.app.FragmentManager;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.media.AudioManager;
@@ -9,6 +10,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -42,7 +45,11 @@ public class HostHubActivity extends AppCompatActivity {
     private boolean shuffleEnabled = false;
     private int currentSong = 0;
     private ArrayList<String> songs;
+    private ArrayList<Uri> songUris;
+    private ArrayList<Integer> curPlayStack;
     private String event_uuid;
+    private ImageButton playButton, pauseButton;
+    private TextView currentlyPlaying;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +59,11 @@ public class HostHubActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         TextView eventName = (TextView) findViewById(R.id.event_name);
-        final TextView currentlyPlaying = (TextView) findViewById(R.id.currently_plaing_meta);
+        currentlyPlaying = (TextView) findViewById(R.id.currently_plaing_meta);
 
         Bundle prevBundle = getIntent().getExtras();
+        //INFO: To tell the difference between host/join for the fragments
+        prevBundle.putString("FROM", "HOST");
 
         String nameText = prevBundle.getString("event_name");
         event_uuid = prevBundle.getString("event_uuid");
@@ -65,15 +74,16 @@ public class HostHubActivity extends AppCompatActivity {
         }
         eventName.setText(nameText);
 
-        final ImageButton playButton = (ImageButton) findViewById(R.id.play_button);
-        final ImageButton pauseButton = (ImageButton) findViewById(R.id.pause_button);
+        playButton = (ImageButton) findViewById(R.id.play_button);
+        pauseButton = (ImageButton) findViewById(R.id.pause_button);
         final ImageButton shuffleButton = (ImageButton) findViewById(R.id.shuffle_button);
         ImageButton skipButton = (ImageButton) findViewById(R.id.skip_button);
 
         Uri musicPath = MediaStore.Audio.Playlists.Members.getContentUri("external", prevBundle.getLong("playlist_id"));
         ContentResolver resolver = this.getContentResolver();
         Cursor musicCursor = resolver.query(musicPath, new String[] {"*"}, null, null, null);
-        final ArrayList<Uri> songUris = new ArrayList<>();
+        songUris = new ArrayList<>();
+        curPlayStack = new ArrayList<>();
 
         songs = prevBundle.getStringArrayList("playlist_songs");
         Log.v("SONGS", songs.toString());
@@ -122,6 +132,7 @@ public class HostHubActivity extends AppCompatActivity {
                         mediaPlayer.start();
                     } catch (IOException e) {
                         Log.e("MUSIC", "Could not play music");
+                        Toast.makeText(HostHubActivity.this, "Failed to play song.", Toast.LENGTH_SHORT).show();
                     }
                     SetCurrentlyPlaying setCurPlayTask = new SetCurrentlyPlaying();
                     setCurPlayTask.execute();
@@ -170,7 +181,9 @@ public class HostHubActivity extends AppCompatActivity {
                 if(songUris.size() > 1 && songs.size() > 1) {
                     songUris.remove(currentSong);
                     songs.remove(currentSong);
-                    if (shuffleEnabled) {
+                    if (curPlayStack.size() > 0) {
+                        currentSong = curPlayStack.get(curPlayStack.size()-1);
+                    } else if (shuffleEnabled) {
                         currentSong = (int) (Math.random() * songUris.size());
                     }
 
@@ -185,6 +198,7 @@ public class HostHubActivity extends AppCompatActivity {
                         mediaPlayer.start();
                     } catch (IOException e) {
                         Log.e("MUSIC", "Could not play music");
+                        Toast.makeText(HostHubActivity.this, "Failed to play song.", Toast.LENGTH_SHORT).show();
                     }
 
                     SetCurrentlyPlaying setCurPlayTask = new SetCurrentlyPlaying();
@@ -225,7 +239,16 @@ public class HostHubActivity extends AppCompatActivity {
         if (getFragmentManager().getBackStackEntryCount() > 0) {
             getFragmentManager().popBackStack();
         } else {
-            super.onBackPressed();
+            new AlertDialog.Builder(this)
+                    .setMessage("Are you sure you want to exit?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            HostHubActivity.super.onBackPressed();
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
         }
     }
 
@@ -295,9 +318,56 @@ public class HostHubActivity extends AppCompatActivity {
             }catch (Exception ex) {
                 Log.e("DAMA", ex.toString());
                 Log.e("DAMA", ex.getLocalizedMessage());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(HostHubActivity.this, "Failed to set the currently playing song.", Toast.LENGTH_SHORT).show();
+                    }
+                });
                 return "Error";
             }
             return "Done";
         }
     }
+
+    public void playSong(String song) {
+        Uri musicPath = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        ContentResolver resolver = this.getContentResolver();
+        Cursor musicCursor = resolver.query(musicPath, new String[] {"*"}, MediaStore.Audio.Media.TITLE + "= ?", new String[] {song}, null);
+
+        if (musicCursor != null) {
+            musicCursor.moveToFirst();
+            String file = musicCursor.getString(musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+            Uri songURI = Uri.fromFile(new File(file));
+
+            mediaPlayer.reset();
+
+            if(songUris.size() > 1 && songs.size() > 1) {
+                songUris.remove(currentSong);
+                songs.remove(currentSong);
+                curPlayStack.add(currentSong);
+                songs.add(song);
+                songUris.add(songURI);
+                currentSong = songs.size() - 1;
+            }
+
+            try {
+                mediaPlayer.setDataSource(this, songURI);
+                mediaPlayer.prepare();
+            } catch (IOException e) {
+                Log.e("DAMA", e.getMessage());
+                Toast.makeText(this, "Failed to play request.", Toast.LENGTH_SHORT);
+            }
+            mediaPlayer.start();
+
+            SetCurrentlyPlaying setCurPlayTask = new SetCurrentlyPlaying();
+            setCurPlayTask.execute();
+            currentlyPlaying.setText(song);
+            playButton.setColorFilter(Color.GREEN);
+            pauseButton.setColorFilter(Color.BLACK);
+        } else {
+            Toast.makeText(this, "Failed to play request.", Toast.LENGTH_SHORT);
+        }
+    }
+
 }

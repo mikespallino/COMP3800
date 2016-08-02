@@ -17,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -213,6 +214,12 @@ public class JoinEventPickerActivity extends AppCompatActivity {
             }catch (Exception ex) {
                 Log.e("DAMA", ex.toString());
                 Log.e("DAMA", ex.getLocalizedMessage());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(JoinEventPickerActivity.this, "Failed to discover events.", Toast.LENGTH_SHORT).show();
+                    }
+                });
                 return "Error";
             }
             return "Done";
@@ -314,6 +321,12 @@ public class JoinEventPickerActivity extends AppCompatActivity {
             }catch (Exception ex) {
                 Log.e("DAMA", ex.toString());
                 Log.e("DAMA", ex.getLocalizedMessage());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(JoinEventPickerActivity.this, "Failed joining the event.", Toast.LENGTH_SHORT).show();
+                    }
+                });
                 return "Error";
             }
             return "Done";
@@ -323,11 +336,16 @@ public class JoinEventPickerActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             if(playlistSongs == null && allSongs == null) {
                 Log.e("DAMA", "Did not join an event!");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(JoinEventPickerActivity.this, "Failed joining the event.", Toast.LENGTH_SHORT).show();
+                    }
+                });
             } else {
                 Intent hubIntent = new Intent(JoinEventPickerActivity.this, HubActivity.class);
                 Bundle hubBundle = new Bundle();
                 hubBundle.putString("event_name", eventNameText);
-                //TODO: Fill this in with the songs from the event.
                 hubBundle.putStringArrayList("playlist_songs", playlistSongs);
                 hubBundle.putString("event_uuid", event_uuid);
                 hubBundle.putStringArrayList("all_songs", allSongs);

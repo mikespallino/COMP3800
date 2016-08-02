@@ -22,6 +22,7 @@ public class JoinHostActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(JoinHostActivity.this, HostPlaylistPickerActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
         // Move to the Join Event Picker Activity when the join button is clicked
