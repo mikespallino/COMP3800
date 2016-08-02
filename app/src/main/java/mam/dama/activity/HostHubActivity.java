@@ -274,6 +274,8 @@ public class HostHubActivity extends AppCompatActivity {
     protected void onDestroy() {
         mediaPlayer.release();
         mediaPlayer = null;
+        DeleteEventTask det = new DeleteEventTask();
+        det.execute();
         super.onDestroy();
     }
 
