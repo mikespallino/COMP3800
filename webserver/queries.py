@@ -6,7 +6,8 @@ DISCOVER_EVENT = """
                  SELECT event_name FROM DAMA.events WHERE location = (%s);
                  """
 DELETE_EVENT = """
-               DELETE FROM DAMA.events WHERE event_name = ("{event_name}") AND event_password {event_password};
+               DELETE FROM DAMA.events WHERE event_uuid = ("{event_uuid}") AND event_name = ("{event_name}") AND event_password {event_password};
+               DELETE FROM DAMA.requests WHERE event_uuid = ("{event_uuid}");
                """
 JOIN_EVENT = """
              SELECT playlist_name, playlist_songs, all_songs, event_uuid FROM DAMA.events
@@ -24,3 +25,6 @@ MAKE_REQUEST = """
 GET_REQUESTS = """
                SELECT song_title FROM DAMA.requests WHERE event_uuid=%s;
                """
+DELETE_REQUEST = """
+                 DELETE FROM DAMA.requests WHERE event_uuid = (%s) AND song_title = (%s);
+                 """

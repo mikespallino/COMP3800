@@ -254,15 +254,15 @@ public class JoinEventPickerActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... params) {
-            JSONObject hostData = new JSONObject();
+            JSONObject eventData = new JSONObject();
             try {
-                hostData.put("event_name", eventNameText);
+                eventData.put("event_name", eventNameText);
                 if (eventNamePassword == "") {
-                    hostData.put("event_password", JSONObject.NULL);
+                    eventData.put("event_password", JSONObject.NULL);
                 } else {
-                    hostData.put("event_password", eventNamePassword);
+                    eventData.put("event_password", eventNamePassword);
                 }
-                hostData.put("key", "DAMA");
+                eventData.put("key", "DAMA");
             } catch (org.json.JSONException e) {
                 Log.v("DAMA", "Couldn't format JSON.");
             }
@@ -282,11 +282,11 @@ public class JoinEventPickerActivity extends AppCompatActivity {
 
                 OutputStream sendData = conn.getOutputStream();
                 OutputStreamWriter streamWriter = new OutputStreamWriter(sendData, "UTF-8");
-                streamWriter.write(hostData.toString());
+                streamWriter.write(eventData.toString());
                 streamWriter.flush();
                 streamWriter.close();
 
-                Log.v("DAMA", hostData.toString());
+                Log.v("DAMA", eventData.toString());
 
                 InputStream in = new BufferedInputStream(conn.getInputStream());
 

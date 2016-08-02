@@ -114,7 +114,7 @@ def discover():
 
 @bottle.route('/delete_event', method='POST')
 def delete_event():
-    valid_keys = ['event_name', 'event_password', 'key']
+    valid_keys = ['event_uuid', 'event_name', 'event_password', 'key']
     post_data = bottle.request.json
     validated = validate_response(post_data, valid_keys)
     if isinstance(validated, str):
@@ -231,6 +231,31 @@ def get_requests():
             results = cur.fetchall()
             for result in results:
                 response['songs'].append(result['song_title'])
+        except Exception as e:
+            print(e)
+            bottle.redirect('/error/{}'.format(errors['database']))
+        finally:
+            cur.close()
+            con.close()
+        return json.dumps(response)
+
+
+@bottle.route('/del_req', method='POST')
+def delete_request():
+    valid_keys = ['event_uuid', 'song_title', 'key']
+    post_data = bottle.request.json
+    validated = validate_response(post_data, valid_keys)
+    response = {'status': 'OK'}
+    if isinstance(validated, str):
+        return bottle.redirect('/error/{}'.format(errors['server'].format(validated)))
+    else:
+        try:
+            del post_data['key']
+            query = queries.DELETE_REQUEST
+            con = pymysql.connect(**db_creds)
+            cur = con.cursor()
+            cur.execute(query, (post_data['event_uuid'], post_data['song_title']))
+            con.commit()
         except Exception as e:
             print(e)
             bottle.redirect('/error/{}'.format(errors['database']))
