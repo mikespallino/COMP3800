@@ -25,3 +25,6 @@ MAKE_REQUEST = """
 GET_REQUESTS = """
                SELECT song_title FROM DAMA.requests WHERE event_uuid=%s;
                """
+DELETE_REQUEST = """
+                 DELETE FROM DAMA.requests WHERE event_uuid = (%s) AND song_title = (%s);
+                 """
