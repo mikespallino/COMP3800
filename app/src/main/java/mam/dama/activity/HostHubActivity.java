@@ -385,6 +385,8 @@ public class HostHubActivity extends AppCompatActivity {
             currentlyPlaying.setText(song);
             playButton.setColorFilter(Color.GREEN);
             pauseButton.setColorFilter(Color.BLACK);
+            DeleteRequestTask drt = new DeleteRequestTask();
+            drt.execute();
         } else {
             Toast.makeText(this, "Failed to play request.", Toast.LENGTH_SHORT);
         }
@@ -457,6 +459,75 @@ public class HostHubActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Toast.makeText(HostHubActivity.this, "Failed to delete event.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                return "Error";
+            }
+            return "Done";
+        }
+    }
+
+    class DeleteRequestTask extends AsyncTask<String, Void, String> {
+
+        public DeleteRequestTask() {
+            super();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            JSONObject requestData = new JSONObject();
+            try {
+                requestData.put("event_uuid", event_uuid);
+                requestData.put("song_title", songs.get(currentSong));
+                requestData.put("key", "DAMA");
+            } catch (org.json.JSONException e) {
+                Log.v("DAMA", "Couldn't format JSON.");
+            }
+
+            Log.v("DAMA-SCP", requestData.toString());
+
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL("http://192.241.149.243:8080/del_req");
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+                conn.setUseCaches(false);
+                conn.setInstanceFollowRedirects(true);
+                conn.connect();
+
+                OutputStream sendData = conn.getOutputStream();
+                OutputStreamWriter streamWriter = new OutputStreamWriter(sendData, "UTF-8");
+                streamWriter.write(requestData.toString());
+                streamWriter.flush();
+                streamWriter.close();
+
+                InputStream in = new BufferedInputStream(conn.getInputStream());
+
+                StringBuffer sb = new StringBuffer();
+                BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                String read;
+
+                while ((read = br.readLine()) != null) {
+                    sb.append(read);
+
+                }
+                br.close();
+                Log.v("DAMA-POST", sb.toString());
+
+                JSONObject event_data = new JSONObject(sb.toString());
+                conn.disconnect();
+
+            } catch (Exception ex) {
+                Log.e("DAMA", ex.toString());
+                Log.e("DAMA", ex.getLocalizedMessage());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(HostHubActivity.this, "Failed to delete request.", Toast.LENGTH_SHORT).show();
                     }
                 });
                 return "Error";
