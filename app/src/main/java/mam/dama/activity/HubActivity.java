@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -49,8 +50,8 @@ public class HubActivity extends AppCompatActivity {
 
         Bundle prevBundle = getIntent().getExtras();
         eventUuid = prevBundle.getString("event_uuid");
-
-        Log.v("DAMA-HUB", prevBundle.toString());
+        //INFO: To tell the difference between host/join for the fragments
+        prevBundle.putString("FROM", "JOIN");
 
         String nameText = prevBundle.getString("event_name");
         if (nameText != null) {
@@ -161,6 +162,12 @@ public class HubActivity extends AppCompatActivity {
             }catch (Exception ex) {
                 Log.e("DAMA", ex.toString());
                 Log.e("DAMA", ex.getLocalizedMessage());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(HubActivity.this, "Failed get currently playing song.", Toast.LENGTH_SHORT).show();
+                    }
+                });
                 return "Error";
             }
             return "Done";

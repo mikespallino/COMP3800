@@ -1,16 +1,23 @@
 package mam.dama.Fragment;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,6 +33,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import mam.dama.R;
+import mam.dama.activity.HostHubActivity;
 
 
 public class RequestViewFragment extends Fragment {
@@ -60,6 +68,46 @@ public class RequestViewFragment extends Fragment {
                 android.R.layout.simple_list_item_1, song_requests);
 
         requestsView.setAdapter(adapter);
+
+        if(prevBundle.getString("FROM").equals("HOST")) {
+            requestsView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    final String songTitle = (String) requestsView.getItemAtPosition(position);
+                    // The following sets up the Alert Dialog to create confirm the request.
+                    AlertDialog.Builder builder = new AlertDialog.Builder(rootView.getContext());
+                    builder.setTitle("Are you sure?");
+
+                    LinearLayout dialogLayout = new LinearLayout(rootView.getContext());
+                    dialogLayout.setOrientation(LinearLayout.VERTICAL);
+
+                    final TextView song = new TextView(rootView.getContext());
+                    song.setHint("Playing song: " + songTitle);
+                    song.setGravity(Gravity.CENTER);
+                    song.setPadding(0,50,0,0);
+
+                    dialogLayout.addView(song);
+                    builder.setView(dialogLayout);
+
+                    // The following is to define what happens when the user clicks either button on the Alert.
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // We know that this is only for the host because of the bundle contents
+                            ((HostHubActivity) getActivity()).playSong(songTitle);
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    builder.show();
+                }
+            });
+        }
         return rootView;
     }
 
@@ -130,6 +178,12 @@ public class RequestViewFragment extends Fragment {
             }catch (Exception ex) {
                 Log.e("DAMA", ex.toString());
                 Log.e("DAMA", ex.getLocalizedMessage());
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), "Failed to get requests.", Toast.LENGTH_SHORT).show();
+                    }
+                });
                 return "Error";
             }
             return "Done";
