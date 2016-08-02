@@ -114,7 +114,7 @@ def discover():
 
 @bottle.route('/delete_event', method='POST')
 def delete_event():
-    valid_keys = ['event_name', 'event_password', 'key']
+    valid_keys = ['event_uuid', 'event_name', 'event_password', 'key']
     post_data = bottle.request.json
     validated = validate_response(post_data, valid_keys)
     if isinstance(validated, str):
