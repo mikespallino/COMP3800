@@ -72,24 +72,7 @@ public class HubActivity extends AppCompatActivity {
         }
 
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.menu,menu);
-        return true;
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        int id = item.getItemId();
 
-        switch(id){
-            case R.id.action_settings:
-                return true;
-            case R.id.action_about:
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
     @Override
     public void onBackPressed() {
         if (getFragmentManager().getBackStackEntryCount() > 0) {
