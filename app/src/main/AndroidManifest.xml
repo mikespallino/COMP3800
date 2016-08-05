@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <uses-feature android:name="android.hardware.screen.portrait"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/llama"
@@ -14,7 +16,9 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activity.SplashScreenActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -23,19 +27,29 @@
         </activity>
         <activity
             android:name=".activity.JoinHostActivity"
-            android:theme="@style/Theme.AppCompat" />
+            android:theme="@style/Theme.AppCompat"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation"/>
         <activity
             android:name=".activity.HostPlaylistPickerActivity"
-            android:theme="@style/Theme.AppCompat" />
+            android:theme="@style/Theme.AppCompat"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation"/>
         <activity
             android:name=".activity.JoinEventPickerActivity"
-            android:theme="@style/Theme.AppCompat" />
+            android:theme="@style/Theme.AppCompat"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation"/>
         <activity
             android:name=".activity.HubActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation"/>
         <activity
             android:name=".activity.HostHubActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation"/>
     </application>
 
 </manifest>
