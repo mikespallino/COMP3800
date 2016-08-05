@@ -42,8 +42,6 @@ public class HubActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hub);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.app_toolbar);
-        setSupportActionBar(toolbar);
 
         TextView eventName = (TextView) findViewById(R.id.event_name);
         curPlayingMeta = (TextView) findViewById(R.id.currently_plaing_meta);

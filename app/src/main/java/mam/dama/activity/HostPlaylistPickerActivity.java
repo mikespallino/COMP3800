@@ -41,6 +41,7 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
     private String eventNamePassword = "";
     private long selectedPlaylistId = 0;
     private String eventUUID = null;
+    private boolean hasPlaylist=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +66,9 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
 //        Log.v("PLAYLISTS", playlistCursor.getString(playlistCursor.getColumnIndex(name)));
         if(playlistCursor.getCount() == 0) {
             playlistIDMap.put("No playlists found!", -1l);
+            hasPlaylist=false;
         } else {
+            hasPlaylist=true;
             for (int i = 0; i < playlistCursor.getCount(); i++) {
                 playlistCursor.moveToPosition(i);
                 String nameText = playlistCursor.getString(playlistCursor.getColumnIndex(name));
@@ -118,76 +121,78 @@ public class HostPlaylistPickerActivity extends AppCompatActivity {
         playlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final String selectedPlaylist = (String) playlistView.getItemAtPosition(position);
-                selectedPlaylistId = playlistIDMap.get(selectedPlaylist);
-                final ArrayList<String> playlistSongs = new ArrayList<>();
-                final ArrayList<String> allSongs = new ArrayList<String>();
+                if(hasPlaylist) {
+                    final String selectedPlaylist = (String) playlistView.getItemAtPosition(position);
+                    selectedPlaylistId = playlistIDMap.get(selectedPlaylist);
+                    final ArrayList<String> playlistSongs = new ArrayList<>();
+                    final ArrayList<String> allSongs = new ArrayList<String>();
 
-                // The following sets up the Alert Dialog to create a new event.
-                AlertDialog.Builder builder = new AlertDialog.Builder(HostPlaylistPickerActivity.this);
-                builder.setTitle("Name your event");
+                    // The following sets up the Alert Dialog to create a new event.
+                    AlertDialog.Builder builder = new AlertDialog.Builder(HostPlaylistPickerActivity.this);
+                    builder.setTitle("Name your event");
 
-                LinearLayout dialogLayout = new LinearLayout(HostPlaylistPickerActivity.this);
-                dialogLayout.setOrientation(LinearLayout.VERTICAL);
+                    LinearLayout dialogLayout = new LinearLayout(HostPlaylistPickerActivity.this);
+                    dialogLayout.setOrientation(LinearLayout.VERTICAL);
 
-                final EditText eventName = new EditText(HostPlaylistPickerActivity.this);
-                eventName.setInputType(InputType.TYPE_CLASS_TEXT);
-                eventName.setHint("Event Name");
+                    final EditText eventName = new EditText(HostPlaylistPickerActivity.this);
+                    eventName.setInputType(InputType.TYPE_CLASS_TEXT);
+                    eventName.setHint("Event Name");
 
-                final EditText eventPassword = new EditText(HostPlaylistPickerActivity.this);
-                eventPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                eventPassword.setHint("(Optional)");
+                    final EditText eventPassword = new EditText(HostPlaylistPickerActivity.this);
+                    eventPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    eventPassword.setHint("(Optional)");
 
-                dialogLayout.addView(eventName);
-                dialogLayout.addView(eventPassword);
+                    dialogLayout.addView(eventName);
+                    dialogLayout.addView(eventPassword);
 
-                builder.setView(dialogLayout);
+                    builder.setView(dialogLayout);
 
-                // The following is to define what happens when the user clicks either button on the Alert.
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Get all of the tracks for the selected playlist
-                        final Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", selectedPlaylistId);
-                        final Uri all_uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                        Cursor all_media = resolver.query(all_uri, null, MediaStore.Audio.Media.IS_MUSIC + "!= 0", null, null);
-                        Cursor tracks = resolver.query(uri, new String[] {"*"}, null, null, null);
+                    // The following is to define what happens when the user clicks either button on the Alert.
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Get all of the tracks for the selected playlist
+                            final Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", selectedPlaylistId);
+                            final Uri all_uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                            Cursor all_media = resolver.query(all_uri, null, MediaStore.Audio.Media.IS_MUSIC + "!= 0", null, null);
+                            Cursor tracks = resolver.query(uri, new String[]{"*"}, null, null, null);
 
-                        if(tracks != null) {
-                            for (int i = 0; i < tracks.getCount(); i++) {
-                                tracks.moveToPosition(i);
-                                int dataIndex = tracks.getColumnIndex(MediaStore.Audio.Media.TITLE);
-                                String trackName = tracks.getString(dataIndex);
-                                playlistSongs.add(trackName);
+                            if (tracks != null) {
+                                for (int i = 0; i < tracks.getCount(); i++) {
+                                    tracks.moveToPosition(i);
+                                    int dataIndex = tracks.getColumnIndex(MediaStore.Audio.Media.TITLE);
+                                    String trackName = tracks.getString(dataIndex);
+                                    playlistSongs.add(trackName);
+                                }
+                                tracks.close();
                             }
-                            tracks.close();
-                        }
 
-                        if(all_media != null) {
-                            for (int i = 0; i < all_media.getCount(); i++) {
-                                all_media.moveToPosition(i);
-                                allSongs.add(all_media.getString(all_media.getColumnIndex(MediaStore.Audio.Media.TITLE)));
+                            if (all_media != null) {
+                                for (int i = 0; i < all_media.getCount(); i++) {
+                                    all_media.moveToPosition(i);
+                                    allSongs.add(all_media.getString(all_media.getColumnIndex(MediaStore.Audio.Media.TITLE)));
+                                }
                             }
+
+                            // Log important stuff and switch to the hub activity
+                            eventNameText = eventName.getText().toString();
+                            eventNamePassword = eventPassword.getText().toString();
+                            Log.v("DAMA [EVENT NAME]:", eventNameText);
+                            Log.v("DAMA [EVENT PASSWORD]:", eventNamePassword);
+
+                            CreateEventTask createEvent = new CreateEventTask(eventNameText, eventNamePassword, selectedPlaylist, playlistSongs, allSongs);
+                            createEvent.execute();
                         }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
 
-                        // Log important stuff and switch to the hub activity
-                        eventNameText = eventName.getText().toString();
-                        eventNamePassword = eventPassword.getText().toString();
-                        Log.v("DAMA [EVENT NAME]:", eventNameText);
-                        Log.v("DAMA [EVENT PASSWORD]:", eventNamePassword);
-
-                        CreateEventTask createEvent = new CreateEventTask(eventNameText, eventNamePassword, selectedPlaylist, playlistSongs, allSongs);
-                        createEvent.execute();
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                builder.show();
+                    builder.show();
+                }
             }
         });
     }

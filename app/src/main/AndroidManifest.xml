@@ -42,12 +42,12 @@
             android:configChanges="orientation"/>
         <activity
             android:name=".activity.HubActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:theme="@style/Theme.AppCompat"
             android:screenOrientation="portrait"
             android:configChanges="orientation"/>
         <activity
             android:name=".activity.HostHubActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:theme="@style/Theme.AppCompat"
             android:screenOrientation="portrait"
             android:configChanges="orientation"/>
     </application>
