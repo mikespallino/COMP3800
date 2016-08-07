@@ -117,7 +117,7 @@ public class HostHubActivity extends AppCompatActivity {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                if(songUris.size() > 1 && songs.size() > 1) {
+                if((songUris.size() > 1 && songs.size() > 1) && currentSong < songs.size()) {
                     songUris.remove(currentSong);
                     songs.remove(currentSong);
                     if (shuffleEnabled) {
@@ -187,7 +187,7 @@ public class HostHubActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //mediaPlayer.stop();
                 mediaPlayer.reset();
-                if(songUris.size() > 1 && songs.size() > 1) {
+                if((songUris.size() > 1 && songs.size() > 1) && currentSong < songs.size()) {
                     songUris.remove(currentSong);
                     songs.remove(currentSong);
                     if (curPlayStack.size() > 0) {
