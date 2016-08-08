@@ -156,13 +156,25 @@ public class HubActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String s) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    curPlayingMeta.setText(cur_play);
-                    curPlayingMeta.invalidate();
-                }
-            });
+            if(s.equals("Done")) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        curPlayingMeta.setText(cur_play);
+                        curPlayingMeta.invalidate();
+                    }
+                });
+            } else if(s.equals("Error")) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(HubActivity.this, "Event is over!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                Intent restart = new Intent(HubActivity.this, JoinHostActivity.class);
+                startActivity(restart);
+                finish();
+            }
         }
 
     }
