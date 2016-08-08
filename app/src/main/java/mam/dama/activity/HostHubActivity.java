@@ -117,37 +117,40 @@ public class HostHubActivity extends AppCompatActivity {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                if((songUris.size() > 1 && songs.size() > 1) && currentSong < songs.size()) {
-                    songUris.remove(currentSong);
-                    songs.remove(currentSong);
-                    if (shuffleEnabled) {
-                        currentSong = (int) (Math.random() * songUris.size());
-                    }
-
-                    Log.v("SONG LIST:", songs.toString());
-                    Log.v("SONG:", songs.get(currentSong));
-                    Log.v("SONG ID, LIST SIZE", "" + currentSong + ", " + songUris.size());
-
-                    try {
-                        mediaPlayer.setDataSource(getApplicationContext(), songUris.get(currentSong));
-                        mediaPlayer.prepare();
-                        mediaPlayer.start();
-                    } catch (IOException e) {
-                        Log.e("MUSIC", "Could not play music");
-                        Toast.makeText(HostHubActivity.this, "Failed to play song.", Toast.LENGTH_SHORT).show();
-                    }
-                    SetCurrentlyPlaying setCurPlayTask = new SetCurrentlyPlaying();
-                    setCurPlayTask.execute();
-
-                    currentlyPlaying.setText(songs.get(currentSong));
-                } else {
-                    DeleteEventTask det = new DeleteEventTask();
-                    det.execute();
-                    Toast.makeText(HostHubActivity.this, "Event is over!", Toast.LENGTH_SHORT).show();
-                    Intent mainIntent = new Intent(HostHubActivity.this, JoinHostActivity.class);
-                    startActivity(mainIntent);
-                    finish();
+            if (!curPlayStack.isEmpty()) {
+                curPlayStack.remove(curPlayStack.size() - 1);
+            }
+            if((songUris.size() > 1 && songs.size() > 1) && currentSong < songs.size()) {
+                songUris.remove(currentSong);
+                songs.remove(currentSong);
+                if (shuffleEnabled) {
+                    currentSong = (int) (Math.random() * songUris.size());
                 }
+
+                Log.v("SONG LIST:", songs.toString());
+                Log.v("SONG:", songs.get(currentSong));
+                Log.v("SONG ID, LIST SIZE", "" + currentSong + ", " + songUris.size());
+
+                try {
+                    mediaPlayer.setDataSource(getApplicationContext(), songUris.get(currentSong));
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                } catch (IOException e) {
+                    Log.e("MUSIC", "Could not play music");
+                    Toast.makeText(HostHubActivity.this, "Failed to play song.", Toast.LENGTH_SHORT).show();
+                }
+                SetCurrentlyPlaying setCurPlayTask = new SetCurrentlyPlaying();
+                setCurPlayTask.execute();
+
+                currentlyPlaying.setText(songs.get(currentSong));
+            } else {
+                DeleteEventTask det = new DeleteEventTask();
+                det.execute();
+                Toast.makeText(HostHubActivity.this, "Event is over!", Toast.LENGTH_SHORT).show();
+                Intent mainIntent = new Intent(HostHubActivity.this, JoinHostActivity.class);
+                startActivity(mainIntent);
+                finish();
+            }
             }
         });
 
@@ -187,6 +190,9 @@ public class HostHubActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //mediaPlayer.stop();
                 mediaPlayer.reset();
+                if (!curPlayStack.isEmpty()) {
+                    curPlayStack.remove(curPlayStack.size() - 1);
+                }
                 if((songUris.size() > 1 && songs.size() > 1) && currentSong < songs.size()) {
                     songUris.remove(currentSong);
                     songs.remove(currentSong);
